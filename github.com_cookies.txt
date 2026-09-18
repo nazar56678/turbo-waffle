@@ -1,0 +1,18 @@
+# Netscape HTTP Cookie File
+# https://curl.haxx.se/rfc/cookie_spec.html
+# This is a generated file! Do not edit.
+
+.github.com	TRUE	/	TRUE	1820836909	_octo	GH1.1.972876859.1789300908
+github.com	FALSE	/	TRUE	1821271682	_device_id	b39357119e1148bd9ba614e415a086b9
+.github.com	TRUE	/	TRUE	1805287692	GHCC	Required:1-Analytics:1-SocialMedia:1-Advertising:1
+github.com	FALSE	/	TRUE	1797511726	saved_user_sessions	196514021%3ApBl3G_7JreEYJfcKD-FWv3kUMn9EqcjECJ-vLgXIieOLOclL
+github.com	FALSE	/	TRUE	1790945326	user_session	pBl3G_7JreEYJfcKD-FWv3kUMn9EqcjECJ-vLgXIieOLOclL
+github.com	FALSE	/	TRUE	1790945326	__Host-user_session_same_site	pBl3G_7JreEYJfcKD-FWv3kUMn9EqcjECJ-vLgXIieOLOclL
+.github.com	TRUE	/	TRUE	1821271726	logged_in	yes
+.github.com	TRUE	/	TRUE	1821271726	dotcom_user	nazar56678
+.github.com	TRUE	/	TRUE	0	color_mode	%7B%22color_mode%22%3A%22auto%22%2C%22light_theme%22%3A%7B%22name%22%3A%22light%22%2C%22color_mode%22%3A%22light%22%7D%2C%22dark_theme%22%3A%7B%22name%22%3A%22dark%22%2C%22color_mode%22%3A%22dark%22%7D%7D
+.github.com	TRUE	/	TRUE	0	cpu_bucket	xlg
+.github.com	TRUE	/	TRUE	0	preferred_color_mode	light
+.github.com	TRUE	/	TRUE	0	tz	Asia%2FQyzylorda
+github.com	FALSE	/	TRUE	0	_gh_sess	3GIUsia%2FrKR8puDeoDrWOpz%2FeabAFNBpGcfmleeu%2FwyRJY3hgULOku7%2BhlagU%2FCqerhlYy2yb9KY%2FPZBrZzt2M0fgk5LHcprAxgN8PRKJOss3zUfN1VSQeTG7gmjrAX2vTpsU%2FwdcmBYF%2FZ6NKYnHRgPPLhRsrGHYSd46X%2F5tvSDBvqLhvAesscLAJCnoQiLigNdwHq%2FIykm5119f%2F%2BeABwPAD%2FmQVwM6ixJY3dtZsRsIwmFf4h6%2FlH%2FgnuUJNGH5WoLaUFMM%2Bj5Usz52M7gu6QjDO6bQQpLuNnDzZO%2B6rmT7rwIxBjFOixHpxmG8ik66%2FMP9RiFXlA4zUtwsNhoYU6ZH4oQQFY4csq8zO%2F4gS7ac78ZRzPyrvOpfA0%2FVT8KN%2BDbEP9PEyOinAQQW%2FA9kKmpp1U%3D--M5Q1qv%2FCJjScz2sc--CRvDiVmTfwmA%2BPVa8ySG5w%3D%3D
+.github.com	TRUE	/	TRUE	1821271690	datadome	iCc_j9XtggUyZRn0R~hg4ZEyUZtqSclsMyI5zQIEtXJH~Gi~uVFWRS7cbvXMoQSFtYYR0~ytNfMqYYKQHyUTCk4A_KjC0f2~wKylJWFuvfueT2frDw7PCuSfoerrF2xH
