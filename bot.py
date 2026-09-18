@@ -24,8 +24,8 @@ dp = Dispatcher()
 DOWNLOAD_DIR = "downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
-# Твоя строка подключения к Neon
-DATABASE_URL = "postgresql://neondb_owner:npg_lNroC1Si7cbM@ep-empty-river-b5kuwkg6-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+# Твоя строка подключения к Neon с таймаутом
+DATABASE_URL = "postgresql://neondb_owner:npg_lNroC1Si7cbM@ep-empty-river-b5kuwkg6-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require&connect_timeout=15"
 
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL)
@@ -132,14 +132,14 @@ def check_admin(user_id: int) -> bool:
     return user_id == ADMIN_ID
 
 
-# --- СКАЧИВАНИЕ ВИДЕО (С КУКАМИ И ЗАЩИТОЙ) ---
+# --- СКАЧИВАНИЕ ВИДЕО ---
 def download_video_sync(url: str) -> str:
     ydl_opts = {
         "format": "bestvideo[ext=mp4]+bestaudio[ext=mp4]/best[ext=mp4]/best",
         "outtmpl": os.path.join(DOWNLOAD_DIR, "%(id)s.%(ext)s"),
         "noplaylist": True,
-        "cookiefile": "cookies.txt",  # Подключение вашего файла с куками
-        "socket_timeout": 30,          # Защита от зависаний
+        "cookiefile": "cookies.txt",
+        "socket_timeout": 30,
     }
 
     with YoutubeDL(ydl_opts) as ydl:
@@ -326,7 +326,7 @@ async def admin_set_photo(message: types.Message):
 
 
 # ==========================================
-# 📥 ОБРАБОТЧИК ССЫЛОК (YouTube, TikTok, Instagram)
+# 📥 ОБРАБОТЧИК ССЫЛОК
 # ==========================================
 @dp.message(F.text.regexp(r"https?://(?:www\.)?.+"))
 async def handle_url(message: types.Message):
@@ -335,7 +335,6 @@ async def handle_url(message: types.Message):
 
     url = message.text.strip()
 
-    # Проверка на фото-карусели TikTok (они не скачиваются через yt-dlp)
     if "/photo/" in url:
         await message.answer(
             "⚠️ Это пост с фотографиями (карусель), а не видео. Бот скачивает только видео!",
