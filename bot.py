@@ -24,18 +24,27 @@ dp = Dispatcher()
 DOWNLOAD_DIR = "downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
 
+import os
+import psycopg2
+
+# Твоя строка подключения к Neon
+DATABASE_URL = "postgresql://neondb_owner:npg_lNroC1Si7cbM@ep-empty-river-b5kuwkg6-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+
+def get_db_connection():
+    return psycopg2.connect(DATABASE_URL)
+
 
 # ==========================================
-# 🗄 НАСТРОЙКА БАЗЫ ДАННЫХ (SQLite)
+# 🗄 НАСТРОЙКА БАЗЫ ДАННЫХ (Neon / PostgreSQL)
 # ==========================================
 def init_db():
-    conn = sqlite3.connect("bot_database.db")
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     # Таблица пользователей
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
-            user_id INTEGER PRIMARY KEY,
+            user_id BIGINT PRIMARY KEY,
             username TEXT,
             full_name TEXT,
             joined_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -50,7 +59,7 @@ def init_db():
         )
     """)
     cursor.execute(
-        "INSERT OR IGNORE INTO stats (key, value) VALUES ('downloads_count', 0)"
+        "INSERT INTO stats (key, value) VALUES ('downloads_count', 0) ON CONFLICT (key) DO NOTHING"
     )
 
     # Таблица настроек и рекламы
@@ -61,54 +70,64 @@ def init_db():
         )
     """)
     cursor.execute(
-        "INSERT OR IGNORE INTO settings (key, value) VALUES ('ad_text', '📢 Реклама: Наш спонсор — @example')"
+        "INSERT INTO settings (key, value) VALUES ('ad_text', '📢 Реклама: Наш спонсор — @example') ON CONFLICT (key) DO NOTHING"
     )
     cursor.execute(
-        "INSERT OR IGNORE INTO settings (key, value) VALUES ('ad_status', 'OFF')"
+        "INSERT INTO settings (key, value) VALUES ('ad_status', 'OFF') ON CONFLICT (key) DO NOTHING"
     )
     cursor.execute(
-        "INSERT OR IGNORE INTO settings (key, value) VALUES ('loading_ad_photo', '')"
+        "INSERT INTO settings (key, value) VALUES ('loading_ad_photo', '') ON CONFLICT (key) DO NOTHING"
     )
 
     conn.commit()
+    cursor.close()
     conn.close()
 
 
 def add_user_to_db(user_id: int, username: str, full_name: str):
-    conn = sqlite3.connect("bot_database.db")
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
         """
-        INSERT OR IGNORE INTO users (user_id, username, full_name) 
-        VALUES (?, ?, ?)
+        INSERT INTO users (user_id, username, full_name) 
+        VALUES (%s, %s, %s)
+        ON CONFLICT (user_id) DO NOTHING
     """,
         (user_id, username, full_name),
     )
     conn.commit()
+    cursor.close()
     conn.close()
 
 
 def increment_downloads():
-    conn = sqlite3.connect("bot_database.db")
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
         "UPDATE stats SET value = value + 1 WHERE key = 'downloads_count'"
     )
     conn.commit()
+    cursor.close()
     conn.close()
 
 
 def get_stats_from_db():
-    conn = sqlite3.connect("bot_database.db")
+    conn = get_db_connection()
     cursor = conn.cursor()
+    
     cursor.execute("SELECT COUNT(*) FROM users")
     total_users = cursor.fetchone()[0]
+    
     cursor.execute("SELECT value FROM stats WHERE key = 'downloads_count'")
-    total_downloads = cursor.fetchone()[0]
+    row = cursor.fetchone()
+    total_downloads = row[0] if row else 0
+    
+    cursor.close()
     conn.close()
     return total_users, total_downloads
 
 
+# Инициализация базы при старте
 init_db()
 
 
