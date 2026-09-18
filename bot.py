@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import os
-import sqlite3
+import psycopg2
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.filters import Command
 from yt_dlp import YoutubeDL
@@ -23,9 +23,6 @@ dp = Dispatcher()
 
 DOWNLOAD_DIR = "downloads"
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
-
-import os
-import psycopg2
 
 # Твоя строка подключения к Neon
 DATABASE_URL = "postgresql://neondb_owner:npg_lNroC1Si7cbM@ep-empty-river-b5kuwkg6-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
@@ -216,12 +213,13 @@ async def admin_stats(message: types.Message):
 async def admin_users(message: types.Message):
     if not check_admin(message.from_user.id):
         return
-    conn = sqlite3.connect("bot_database.db")
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
         "SELECT user_id, username, full_name, joined_date FROM users ORDER BY joined_date DESC LIMIT 15"
     )
     rows = cursor.fetchall()
+    cursor.close()
     conn.close()
 
     if not rows:
@@ -240,7 +238,7 @@ async def admin_users(message: types.Message):
 async def admin_advert_menu(message: types.Message):
     if not check_admin(message.from_user.id):
         return
-    conn = sqlite3.connect("bot_database.db")
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT value FROM settings WHERE key = 'ad_status'")
     status = cursor.fetchone()[0]
@@ -248,6 +246,7 @@ async def admin_advert_menu(message: types.Message):
     ad_text = cursor.fetchone()[0]
     cursor.execute("SELECT value FROM settings WHERE key = 'loading_ad_photo'")
     photo_url = cursor.fetchone()[0]
+    cursor.close()
     conn.close()
 
     text = (
@@ -263,10 +262,11 @@ async def admin_advert_menu(message: types.Message):
 async def admin_ad_on(message: types.Message):
     if not check_admin(message.from_user.id):
         return
-    conn = sqlite3.connect("bot_database.db")
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("UPDATE settings SET value = 'ON' WHERE key = 'ad_status'")
     conn.commit()
+    cursor.close()
     conn.close()
     await message.answer("✅ Реклама при ожидании загрузки включена!")
 
@@ -275,10 +275,11 @@ async def admin_ad_on(message: types.Message):
 async def admin_ad_off(message: types.Message):
     if not check_admin(message.from_user.id):
         return
-    conn = sqlite3.connect("bot_database.db")
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("UPDATE settings SET value = 'OFF' WHERE key = 'ad_status'")
     conn.commit()
+    cursor.close()
     conn.close()
     await message.answer("❌ Реклама при ожидании загрузки выключена.")
 
@@ -292,12 +293,13 @@ async def admin_set_ad(message: types.Message):
         await message.answer("⚠️ Укажите текст. Пример: `/setad Текст рекламы`")
         return
     new_text = args[1]
-    conn = sqlite3.connect("bot_database.db")
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
-        "UPDATE settings SET value = ? WHERE key = 'ad_text'", (new_text,)
+        "UPDATE settings SET value = %s WHERE key = 'ad_text'", (new_text,)
     )
     conn.commit()
+    cursor.close()
     conn.close()
     await message.answer(f"✅ Рекламный текст обновлен:\n\n{new_text}")
 
@@ -311,13 +313,14 @@ async def admin_set_photo(message: types.Message):
         await message.answer("⚠️ Укажите прямую ссылку на картинку или отправьте ID файла.")
         return
     photo_val = args[1]
-    conn = sqlite3.connect("bot_database.db")
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
-        "UPDATE settings SET value = ? WHERE key = 'loading_ad_photo'",
+        "UPDATE settings SET value = %s WHERE key = 'loading_ad_photo'",
         (photo_val,),
     )
     conn.commit()
+    cursor.close()
     conn.close()
     await message.answer("✅ Рекламная картинка для загрузки обновлена!")
 
@@ -356,7 +359,7 @@ async def handle_url(message: types.Message):
         )
         return
 
-    conn = sqlite3.connect("bot_database.db")
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT value FROM settings WHERE key = 'ad_status'")
     ad_status = cursor.fetchone()[0]
@@ -364,6 +367,7 @@ async def handle_url(message: types.Message):
     ad_text = cursor.fetchone()[0]
     cursor.execute("SELECT value FROM settings WHERE key = 'loading_ad_photo'")
     ad_photo = cursor.fetchone()[0]
+    cursor.close()
     conn.close()
 
     loading_text = "⏳ **Анализирую ссылку и скачиваю видео...**"
@@ -436,7 +440,7 @@ async def handle_other_text(message: types.Message):
 
 
 async def main():
-    logging.info("Бот запущен и поддерживает YouTube, TikTok, Instagram с рекламой!")
+    logging.info("Бот запущен и подключен к базе Neon!")
     await dp.start_polling(bot)
 
 
